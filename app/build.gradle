@@ -39,4 +39,7 @@ dependencies {
 
     // Firebase DB
     implementation 'com.google.firebase:firebase-database:19.4.0'
+
+    // RecyclerView
+    implementation "androidx.recyclerview:recyclerview:1.2.0-alpha05"
 }

@@ -1,49 +1,77 @@
 package com.example.chattingapp
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.database.*
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        private const val TAG = "KotlinActivity"
+        private const val TAG = "ChatApp"
+        private val database = FirebaseDatabase.getInstance()
+        val myRef = database.getReference("message")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        basicReadWrite()
+
+        // Recyclerview
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
+        val adapter = ChatAdapter()
+        recyclerView.adapter = adapter
+        val layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = layoutManager
+        recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+
+        // Send Chat Button
+        button_send.setOnClickListener {
+            write(editText_chat.text.toString())
+        }
+
+        // Chatting Message Update
+        read(adapter)
     }
 
-    fun basicReadWrite() {
-        // [START write_message]
-        // Write a message to the database
-        val database = FirebaseDatabase.getInstance()
-        val myRef = database.getReference("message")
+    private fun read(adapter:ChatAdapter) {
+        myRef.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                /* Parsing string s gotten from firebase database into map. */
+                /* String example: {msg=Hi, nickname=Android SDK built for x86} */
+                var s = snapshot.value.toString()
+                s = s.drop(1)
+                s = s.dropLast(1)
+                val map = s.split(", ").associate {
+                    val (left, right) = it.split("=")
+                    left to right
+                }
+                Log.d(TAG, "onDataChange => Value is: ${snapshot.value.toString()}")
+                val chatData = ChatData(map["nickname"].toString(), map["msg"].toString())
+                (adapter).addChat(chatData)
+            }
 
-        myRef.setValue("Happy Birthday!")
-        // [END write_message]
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+            }
 
-        // [START read_message]
-        // Read from the database
-        myRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                val value: String = dataSnapshot.value as String
-                Log.d(TAG, "Value is: $value")
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Failed to read value
                 Log.w(TAG, "Failed to read value.", error.toException())
             }
         })
-        // [END read_message]
+    }
+
+    private fun write(msg: String) {
+        val chatData = ChatData(android.os.Build.MODEL, msg)
+        myRef.push().setValue(chatData)
     }
 }
