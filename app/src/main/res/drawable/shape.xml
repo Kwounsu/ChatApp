@@ -1,0 +1,25 @@
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle"   >
+
+    <solid
+        android:color="#DDBEA7" >
+    </solid>
+
+    <stroke
+        android:width="2dp"
+        android:color="#8F5E39" >
+    </stroke>
+
+    <padding
+        android:left="@dimen/chat_padding"
+        android:top="@dimen/chat_padding"
+        android:right="@dimen/chat_padding"
+        android:bottom="@dimen/chat_padding"    >
+    </padding>
+
+    <corners
+        android:radius="11dp"   >
+    </corners>
+
+</shape>
