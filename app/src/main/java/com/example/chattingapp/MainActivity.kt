@@ -32,10 +32,16 @@ class MainActivity : AppCompatActivity() {
         // Send Chat Button
         button_send.setOnClickListener {
             write(editText_chat.text.toString())
+            editText_chat.text.clear()
         }
 
         // Chatting Message Update
         read(adapter)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
     }
 
     private fun read(adapter:ChatAdapter) {

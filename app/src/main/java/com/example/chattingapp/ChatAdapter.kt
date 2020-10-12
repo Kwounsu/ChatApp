@@ -43,6 +43,6 @@ class ChatAdapter : RecyclerView.Adapter<ChatAdapter.ViewHolder>() {
     fun addChat(chat: ChatData) {
         Log.d("ChatAdapter->addChat", "Enter")
         this.chat.add(chat)
-        notifyItemInserted(itemCount - 1) // 갱신
+        notifyItemInserted(itemCount - 1) // update
     }
 }
